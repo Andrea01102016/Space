@@ -1,0 +1,852 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SPACE QUIZ | Categories</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      background: #05091d;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    /* VESMÍRNÉ POZADÍ */
+
+    #stars {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .nebula {
+      position: fixed;
+      inset: -30%;
+      z-index: 0;
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at 25% 35%,
+          rgba(65, 43, 150, 0.4),
+          transparent 42%
+        ),
+        radial-gradient(
+          ellipse at 75% 70%,
+          rgba(15, 90, 160, 0.32),
+          transparent 45%
+        ),
+        radial-gradient(
+          ellipse at 65% 20%,
+          rgba(118, 32, 118, 0.25),
+          transparent 35%
+        );
+
+      animation: nebulaMove 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes nebulaMove {
+      from {
+        transform: translate(-3%, -2%) scale(1);
+      }
+
+      to {
+        transform: translate(3%, 3%) scale(1.12);
+      }
+    }
+
+    .planet {
+      position: fixed;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+
+      top: 5%;
+      right: -100px;
+
+      background: radial-gradient(
+        circle at 30% 25%,
+        #91adff,
+        #34529e 40%,
+        #182452 75%,
+        #060b20
+      );
+
+      box-shadow:
+        0 0 55px rgba(73, 112, 255, 0.2),
+        inset -35px -25px 55px rgba(0, 0, 0, 0.6);
+
+      animation: planetFloat 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes planetFloat {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(35px);
+      }
+    }
+
+    /* HLAVNÍ STRÁNKA */
+
+    .main {
+      position: relative;
+      z-index: 1;
+
+      min-height: 100vh;
+      max-width: 1300px;
+      margin: 0 auto;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 35px 30px;
+      gap: 28px;
+    }
+
+    /* NADPIS */
+
+    .heading {
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #9cbbff;
+      font-size: 13px;
+      letter-spacing: 4px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 60px);
+      letter-spacing: 3px;
+
+      background: linear-gradient(
+        90deg,
+        #ffffff,
+        #a7c8ff,
+        #a98aff
+      );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .description {
+      color: #b7c5e8;
+      margin-top: 10px;
+      font-size: 17px;
+    }
+
+    /* KATEGORIE */
+
+    .categories {
+      width: 100%;
+
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .category {
+      position: relative;
+
+      min-height: 190px;
+      padding: 25px 15px;
+
+      background: rgba(16, 27, 64, 0.78);
+      border: 1px solid rgba(135, 160, 255, 0.3);
+      border-radius: 20px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+
+      color: white;
+      font-family: inherit;
+      text-align: center;
+      cursor: pointer;
+
+      backdrop-filter: blur(12px);
+
+      transition:
+        transform 0.3s,
+        background 0.3s,
+        box-shadow 0.3s,
+        border-color 0.3s;
+    }
+
+    .category:hover:not(:disabled) {
+      transform: translateY(-8px) scale(1.025);
+      background: rgba(35, 49, 99, 0.94);
+      border-color: var(--accent);
+
+      box-shadow:
+        0 0 30px var(--glow),
+        0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .category:focus-visible {
+      outline: 3px solid #ffffff;
+      outline-offset: 4px;
+    }
+
+    .category-icon {
+      font-size: 54px;
+      line-height: 1.2;
+      transition: transform 0.3s;
+    }
+
+    .category:hover:not(:disabled) .category-icon {
+      transform: scale(1.15);
+    }
+
+    .category-name {
+      font-size: clamp(15px, 1.5vw, 20px);
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .category-status {
+      font-size: 12px;
+      color: #a8bce8;
+      letter-spacing: 1px;
+    }
+
+    /* JEDNOTLIVÉ BARVY KATEGORIÍ */
+
+    .category:nth-child(1) {
+      --accent: #5ba9ff;
+      --glow: rgba(91, 169, 255, 0.25);
+    }
+
+    .category:nth-child(2) {
+      --accent: #b58aff;
+      --glow: rgba(181, 138, 255, 0.25);
+    }
+
+    .category:nth-child(3) {
+      --accent: #6be0a7;
+      --glow: rgba(107, 224, 167, 0.25);
+    }
+
+    .category:nth-child(4) {
+      --accent: #ff9e77;
+      --glow: rgba(255, 158, 119, 0.25);
+    }
+
+    .category:nth-child(5) {
+      --accent: #ffd06a;
+      --glow: rgba(255, 208, 106, 0.25);
+    }
+
+    .category:nth-child(6) {
+      --accent: #7ee4ef;
+      --glow: rgba(126, 228, 239, 0.25);
+    }
+
+    .category:nth-child(7) {
+      --accent: #fa8eca;
+      --glow: rgba(250, 142, 202, 0.25);
+    }
+
+    .category:nth-child(8) {
+      --accent: #f4d178;
+      --glow: rgba(244, 209, 120, 0.25);
+    }
+
+    /* ODEHRANÁ KATEGORIE */
+
+    .category.completed {
+      opacity: 0.48;
+      filter: grayscale(0.7);
+      cursor: not-allowed;
+    }
+
+    .category.completed .category-status {
+      color: #b1f3ce;
+    }
+
+    /* SPODNÍ PANEL */
+
+    .bottom-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+
+      width: 100%;
+      padding: 19px 25px;
+
+      border: 1px solid rgba(135, 160, 255, 0.25);
+      border-radius: 18px;
+
+      background: rgba(12, 22, 55, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .back {
+      padding: 12px 18px;
+
+      background: rgba(255, 255, 255, 0.08);
+      color: #dce6ff;
+
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+
+      transition: 0.25s;
+    }
+
+    .back:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .scoreboard {
+      display: flex;
+      justify-content: center;
+      gap: 35px;
+      flex: 1;
+    }
+
+    .score-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .score-name {
+      font-size: 15px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .score-team:nth-child(1) .score-name {
+      color: #69b8ff;
+    }
+
+    .score-team:nth-child(2) .score-name {
+      color: #d5adff;
+    }
+
+    .score-team:nth-child(3) .score-name {
+      color: #79ebc8;
+    }
+
+    .score-points {
+      font-size: 29px;
+      font-weight: bold;
+    }
+
+    .score-label {
+      font-size: 11px;
+      color: #a7b7d5;
+      letter-spacing: 2px;
+    }
+
+    /* PROGRES */
+
+    .progress {
+      color: #a8bce8;
+      font-size: 13px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* TABLET */
+
+    @media (max-width: 1000px) {
+      .categories {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .category {
+        min-height: 155px;
+      }
+
+      .category-icon {
+        font-size: 43px;
+      }
+
+      .bottom-panel {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .scoreboard {
+        order: -1;
+        width: 100%;
+        flex: auto;
+      }
+    }
+
+    /* MOBIL */
+
+    @media (max-width: 600px) {
+      .main {
+        padding: 30px 15px;
+        gap: 25px;
+      }
+
+      .categories {
+        gap: 12px;
+      }
+
+      .category {
+        min-height: 140px;
+        padding: 15px 8px;
+        gap: 10px;
+      }
+
+      .category-icon {
+        font-size: 38px;
+      }
+
+      .category-name {
+        font-size: 13px;
+      }
+
+      .category-status {
+        font-size: 10px;
+      }
+
+      .scoreboard {
+        gap: 5px;
+        justify-content: space-around;
+      }
+
+      .score-team {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .score-name {
+        font-size: 12px;
+      }
+
+      .score-points {
+        font-size: 23px;
+      }
+
+      .planet {
+        width: 170px;
+        height: 170px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nebula,
+      .planet {
+        animation: none;
+      }
+
+      .category,
+      .category-icon {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- POZADÍ -->
+
+  <canvas id="stars"></canvas>
+  <div class="nebula"></div>
+  <div class="planet"></div>
+
+  <main class="main">
+
+    <!-- NADPIS -->
+
+    <header class="heading">
+      <div class="subtitle">MISSION TO THE FUTURE</div>
+      <h1>CHOOSE YOUR CATEGORY</h1>
+      <p class="description">
+        Select a category and earn points for your team!
+      </p>
+    </header>
+
+    <!-- KATEGORIE -->
+
+    <section class="categories">
+
+      <button class="category" data-category="space-facts">
+        <span class="category-icon">🪐</span>
+        <span class="category-name">SPACE FACTS</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="famous-astronauts">
+        <span class="category-icon">👨‍🚀</span>
+        <span class="category-name">FAMOUS ASTRONAUTS</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="aliens-ufos">
+        <span class="category-icon">👽</span>
+        <span class="category-name">ALIENS & UFOs</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="space-movies">
+        <span class="category-icon">🎬</span>
+        <span class="category-name">SPACE MOVIES</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="back-to-future">
+        <span class="category-icon">🤖</span>
+        <span class="category-name">BACK TO THE FUTURE</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="guess-what">
+        <span class="category-icon">🔭</span>
+        <span class="category-name">GUESS WHAT?</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="true-false">
+        <span class="category-icon">🌍</span>
+        <span class="category-name">TRUE OR FALSE?</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+      <button class="category" data-category="space-records">
+        <span class="category-icon">🏆</span>
+        <span class="category-name">SPACE RECORDS</span>
+        <span class="category-status">5 QUESTIONS</span>
+      </button>
+
+    </section>
+
+    <!-- SPODNÍ PANEL -->
+
+    <footer class="bottom-panel">
+
+      <button class="back" onclick="goBack()">
+        ← BACK
+      </button>
+
+      <div class="scoreboard">
+
+        <div class="score-team">
+          <div class="score-name" id="name1">🚀 TEAM 1</div>
+          <div class="score-points" id="score1">0</div>
+          <div class="score-label">POINTS</div>
+        </div>
+
+        <div class="score-team">
+          <div class="score-name" id="name2">🪐 TEAM 2</div>
+          <div class="score-points" id="score2">0</div>
+          <div class="score-label">POINTS</div>
+        </div>
+
+        <div class="score-team">
+          <div class="score-name" id="name3">👽 TEAM 3</div>
+          <div class="score-points" id="score3">0</div>
+          <div class="score-label">POINTS</div>
+        </div>
+
+      </div>
+
+      <div class="progress" id="progress">
+        0 / 40 QUESTIONS
+      </div>
+
+    </footer>
+
+  </main>
+
+  <script>
+
+    /* ANIMOVANÝ VESMÍR */
+
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+
+    let stars = [];
+    let canvasWidth;
+    let canvasHeight;
+
+    const STAR_COUNT = 300;
+    const SPEED = 1;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    function createStars() {
+
+      stars = [];
+
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: Math.random() * canvasWidth,
+          y: Math.random() * canvasHeight,
+          z: Math.random() * 999 + 1
+        });
+      }
+
+    }
+
+    function resizeCanvas() {
+
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight;
+
+      const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        2
+      );
+
+      canvas.width = Math.round(canvasWidth * dpr);
+      canvas.height = Math.round(canvasHeight * dpr);
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      createStars();
+
+      if (reducedMotion) {
+        drawStars(false);
+      }
+
+    }
+
+    function drawStars(move = true) {
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+
+      stars.forEach(star => {
+
+        if (move) {
+          star.z -= SPEED;
+        }
+
+        if (star.z <= 1) {
+          star.x = Math.random() * canvasWidth;
+          star.y = Math.random() * canvasHeight;
+          star.z = 1000;
+        }
+
+        const scale = 1000 / star.z;
+
+        const x = centerX + (star.x - centerX) * scale;
+        const y = centerY + (star.y - centerY) * scale;
+
+        if (
+          x < 0 || x > canvasWidth ||
+          y < 0 || y > canvasHeight
+        ) {
+          star.x = Math.random() * canvasWidth;
+          star.y = Math.random() * canvasHeight;
+          star.z = 1000;
+          return;
+        }
+
+        const radius = Math.min(
+          3,
+          Math.max(0.2, scale * 0.6)
+        );
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+        ctx.fillStyle = "rgba(220, 235, 255, 0.9)";
+        ctx.fill();
+
+      });
+
+    }
+
+    function animateStars() {
+      drawStars(true);
+      requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+
+    if (!reducedMotion) {
+      animateStars();
+    }
+
+    /* DATA HRY */
+
+    const STORAGE_KEY = "spaceQuizState";
+
+    function loadGame() {
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (error) {
+        console.warn("Unable to load game.", error);
+      }
+
+      return null;
+
+    }
+
+    const game = loadGame();
+
+    /* NÁZVY TÝMŮ A SKÓRE */
+
+    function renderScores() {
+
+      if (
+        !game ||
+        !Array.isArray(game.teams) ||
+        game.teams.length !== 3
+      ) {
+        return;
+      }
+
+      game.teams.forEach((team, index) => {
+
+        const number = index + 1;
+
+        const icons = ["🚀", "🪐", "👽"];
+
+        document.getElementById(
+          "name" + number
+        ).textContent =
+          icons[index] + " " + (team.name || "TEAM " + number);
+
+        document.getElementById(
+          "score" + number
+        ).textContent = team.score ?? 0;
+
+      });
+
+    }
+
+    /* STAV ODEHRANÝCH OTÁZEK */
+
+    const categories = document.querySelectorAll(".category");
+
+    function updateCategories() {
+
+      const completed = (
+        game && Array.isArray(game.completedQuestions)
+      ) ? game.completedQuestions : [];
+
+      categories.forEach(category => {
+
+        const id = category.dataset.category;
+
+        let completedCount = 0;
+
+        for (let points = 100; points <= 500; points += 100) {
+
+          const questionId = id + "-" + points;
+
+          if (completed.includes(questionId)) {
+            completedCount++;
+          }
+
+        }
+
+        const status = category.querySelector(
+          ".category-status"
+        );
+
+        if (completedCount === 5) {
+
+          category.classList.add("completed");
+          category.disabled = true;
+
+          status.textContent = "✓ COMPLETED";
+
+        } else {
+
+          category.classList.remove("completed");
+          category.disabled = false;
+
+          status.textContent =
+            completedCount + " / 5 COMPLETED";
+
+        }
+
+      });
+
+      document.getElementById("progress").textContent =
+        completed.length + " / 40 QUESTIONS";
+
+    }
+
+    /* VÝBĚR KATEGORIE */
+
+    categories.forEach(category => {
+
+      category.addEventListener("click", function() {
+
+        const selectedCategory = this.dataset.category;
+
+        window.location.href =
+          "questions.html?category=" +
+          encodeURIComponent(selectedCategory);
+
+      });
+
+    });
+
+    /* NÁVRAT NA ÚVODNÍ STRÁNKU */
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+
+    renderScores();
+    updateCategories();
+
+    /* AKTUALIZACE PŘI NÁVRATU */
+
+    window.addEventListener("pageshow", function() {
+      renderScores();
+      updateCategories();
+    });
+
+  </script>
+
+</body>
+</html>

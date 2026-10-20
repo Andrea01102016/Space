@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SPACE QUIZ | Space Champions</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  background: #05091d;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* VESMÍRNÉ POZADÍ */
+
+#stars,
+#confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#stars { z-index: 0; }
+#confetti { z-index: 3; }
+
+.nebula {
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 20% 30%,
+      rgba(83, 46, 174, .5),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 80% 65%,
+      rgba(16, 108, 164, .36),
+      transparent 45%
+    );
+
+  animation: drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  to {
+    transform: translate(3%, 3%) scale(1.1);
+  }
+}
+
+/* HLAVNÍ OBSAH */
+
+.main {
+  position: relative;
+  z-index: 2;
+
+  min-height: 100vh;
+  max-width: 1130px;
+  margin: 0 auto;
+  padding: 40px 22px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 27px;
+}
+
+.heading {
+  text-align: center;
+}
+
+.subtitle-top {
+  color: #9ebcff;
+  letter-spacing: 4px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  font-size: clamp(37px, 6vw, 76px);
+
+  background: linear-gradient(
+    100deg,
+    #ffffff,
+    #ffe0a0,
+    #a4baff
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  filter: drop-shadow(
+    0 0 20px rgba(102, 110, 230, .3)
+  );
+}
+
+.subtitle {
+  color: #c3d0ed;
+  font-size: 18px;
+  margin-top: 9px;
+}
+
+.winner-note {
+  font-weight: bold;
+  color: #ffe3a0;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* STUPNĚ VÍTĚZŮ */
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: end;
+
+  width: 100%;
+  max-width: 1030px;
+  margin-top: 8px;
+}
+
+.place {
+  border: 1px solid rgba(152, 172, 231, .34);
+  border-radius: 23px;
+
+  background: rgba(16, 27, 64, .82);
+  backdrop-filter: blur(12px);
+
+  padding: 24px 18px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+
+  box-shadow: 0 15px 35px rgba(0, 0, 0, .3);
+  min-width: 0;
+}
+
+.place.first {
+  min-height: 330px;
+  border-color: #ffd56c;
+  box-shadow: 0 0 38px rgba(255, 213, 108, .18);
+}
+
+.place.second {
+  min-height: 290px;
+  border-color: #a9c0ea;
+}
+
+.place.third {
+  min-height: 266px;
+  border-color: #dfae87;
+}
+
+.medal {
+  font-size: 70px;
+}
+
+.rank {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #b7c9ef;
+}
+
+.name {
+  font-size: clamp(17px, 2.7vw, 27px);
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.score {
+  font-size: clamp(28px, 4vw, 43px);
+  font-weight: bold;
+  color: #ffdb79;
+}
+
+.points-label {
+  color: #b9c6e4;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+
+/* TLAČÍTKA */
+
+.actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  color: white;
+
+  border: none;
+  border-radius: 40px;
+  padding: 16px 24px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  background: linear-gradient(
+    110deg,
+    #416af1,
+    #8254e8
+  );
+
+  transition: .2s;
+}
+
+button:hover {
+  filter: brightness(1.18);
+  transform: translateY(-2px);
+}
+
+button.secondary {
+  background: rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.status {
+  text-align: center;
+  color: #9daed0;
+  font-size: 13px;
+}
+
+/* MOBIL */
+
+@media (max-width: 650px) {
+  .podium {
+    grid-template-columns: 1fr;
+    max-width: 430px;
+  }
+
+  .place,
+  .place.first,
+  .place.second,
+  .place.third {
+    min-height: auto;
+    padding: 22px;
+  }
+
+  .medal {
+    font-size: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula {
+    animation: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+<div class="nebula"></div>
+<canvas id="confetti"></canvas>
+
+<main class="main">
+
+  <header class="heading">
+
+    <p class="subtitle-top">
+      MISSION TO THE FUTURE
+    </p>
+
+    <h1>🏆 SPACE CHAMPIONS 🏆</h1>
+
+    <p class="subtitle">
+      Mission Complete!
+    </p>
+
+  </header>
+
+  <p class="winner-note" id="winnerNote"></p>
+
+  <!-- STUPNĚ VÍTĚZŮ -->
+
+  <section class="podium" id="podium"></section>
+
+  <!-- TLAČÍTKA -->
+
+  <div class="actions">
+
+    <button class="secondary" onclick="goBack()">
+      ← CATEGORIES
+    </button>
+
+    <button onclick="newGame()">
+      🚀 NEW GAME
+    </button>
+
+  </div>
+
+  <p class="status" id="status"></p>
+
+</main>
+
+<script>
+
+/* =====================================
+   ULOŽENÁ DATA HRY
+===================================== */
+
+const STORAGE_KEY = "spaceQuizState";
+
+function loadGame() {
+
+  try {
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      return JSON.parse(saved);
+    }
+
+  } catch (error) {
+    console.warn("Unable to load game.", error);
+  }
+
+  return {
+    teams: [
+      {name: "Team 1", score: 0},
+      {name: "Team 2", score: 0},
+      {name: "Team 3", score: 0}
+    ],
+    completedQuestions: []
+  };
+
+}
+
+const game = loadGame();
+
+/* =====================================
+   SEŘAZENÍ TÝMŮ
+===================================== */
+
+const teams = game.teams.map((team, index) => ({
+  name: team.name || "Team " + (index + 1),
+  score: Number(team.score) || 0,
+  index: index
+}));
+
+teams.sort((a, b) => {
+  return b.score - a.score || a.index - b.index;
+});
+
+/* PŘIDĚLENÍ POŘADÍ VČETNĚ REMÍZ */
+
+let previousScore = null;
+let currentRank = 0;
+
+const rankedTeams = teams.map((team, index) => {
+
+  if (team.score !== previousScore) {
+    currentRank = index + 1;
+  }
+
+  previousScore = team.score;
+
+  return {
+    ...team,
+    rank: currentRank
+  };
+
+});
+
+/* =====================================
+   VYKRESLENÍ STUPŇŮ VÍTĚZŮ
+===================================== */
+
+const medals = {
+  1: "🥇",
+  2: "🥈",
+  3: "🥉"
+};
+
+const podium = document.getElementById("podium");
+
+/* Druhý – první – třetí */
+
+const displayOrder = {
+  2: 0,
+  1: 1,
+  3: 2
+};
+
+const displayTeams = [...rankedTeams].sort((a, b) => {
+
+  return (
+    (displayOrder[a.rank] ?? 3) -
+    (displayOrder[b.rank] ?? 3)
+  ) || a.index - b.index;
+
+});
+
+displayTeams.forEach(team => {
+
+  const card = document.createElement("div");
+
+  const placeClass = {
+    1: "first",
+    2: "second",
+    3: "third"
+  };
+
+  card.className =
+    "place " + (placeClass[team.rank] || "third");
+
+  const medal = document.createElement("div");
+  medal.className = "medal";
+  medal.textContent = medals[team.rank] || "⭐";
+
+  const rank = document.createElement("div");
+  rank.className = "rank";
+  rank.textContent = team.rank + ". PLACE";
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = team.name;
+
+  const score = document.createElement("div");
+  score.className = "score";
+  score.textContent = team.score.toLocaleString("cs-CZ");
+
+  const label = document.createElement("div");
+  label.className = "points-label";
+  label.textContent = "POINTS";
+
+  card.append(medal, rank, name, score, label);
+
+  podium.appendChild(card);
+
+});
+
+/* =====================================
+   VÍTĚZNÝ TÝM
+===================================== */
+
+const winners = rankedTeams.filter(team => team.rank === 1);
+
+const winnerNote = document.getElementById("winnerNote");
+
+if (winners.length === 1) {
+
+  winnerNote.textContent =
+    "WINNERS OF THE SPACE QUIZ: " +
+    winners[0].name + "!";
+
+} else {
+
+  winnerNote.textContent =
+    "IT'S A TIE! CHAMPIONS: " +
+    winners.map(team => team.name).join(" & ");
+
+}
+
+/* STAV DOKONČENÍ HRY */
+
+const completed = Array.isArray(game.completedQuestions)
+  ? game.completedQuestions
+  : [];
+
+document.getElementById("status").textContent =
+  completed.length >= 40
+    ? "All 40 questions completed!"
+    : completed.length + " / 40 QUESTIONS COMPLETED";
+
+/* =====================================
+   NAVIGACE
+===================================== */
+
+function goBack() {
+
+  window.location.href = "categories.html";
+
+}
+
+function newGame() {
+
+  if (!confirm(
+    "Start a new game? All scores will be deleted."
+  )) {
+    return;
+  }
+
+  const newState = {
+    teams: [
+      {name: "", score: 0},
+      {name: "", score: 0},
+      {name: "", score: 0}
+    ],
+    completedQuestions: []
+  };
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(newState)
+  );
+
+  window.location.href = "index.html";
+
+}
+
+/* =====================================
+   ANIMOVANÉ HVĚZDY A KONFETY
+===================================== */
+
+const starCanvas = document.getElementById("stars");
+const starCtx = starCanvas.getContext("2d");
+
+const confettiCanvas = document.getElementById("confetti");
+const confettiCtx = confettiCanvas.getContext("2d");
+
+let width = 0;
+let height = 0;
+
+let stars = [];
+let particles = [];
+
+const colors = [
+  "#ffe18e",
+  "#8cbaff",
+  "#d5a5ff",
+  "#82eddb",
+  "#ffffff"
+];
+
+const reducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+
+function resizeCanvas() {
+
+  width = window.innerWidth;
+  height = window.innerHeight;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  [starCanvas, confettiCanvas].forEach(canvas => {
+
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+
+  });
+
+  starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  stars = [];
+
+  for (let i = 0; i < 230; i++) {
+
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      z: Math.random() * 900 + 100
+    });
+
+  }
+
+}
+
+/* KONFETOVÝ OHŇOSTROJ */
+
+function createBurst() {
+
+  for (let i = 0; i < 80; i++) {
+
+    particles.push({
+
+      x: width * (0.15 + Math.random() * 0.7),
+      y: height * (0.06 + Math.random() * 0.3),
+
+      vx: (Math.random() - 0.5) * 8,
+      vy: -2 - Math.random() * 4,
+
+      life: 100 + Math.random() * 75,
+      size: 2 + Math.random() * 4,
+
+      color: colors[i % colors.length]
+
+    });
+
+  }
+
+}
+
+/* ANIMACE */
+
+let frames = 0;
+
+function animate() {
+
+  starCtx.clearRect(0, 0, width, height);
+  confettiCtx.clearRect(0, 0, width, height);
+
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  stars.forEach(star => {
+
+    star.z -= 0.8;
+
+    if (star.z <= 1) {
+      star.z = 1000;
+    }
+
+    const scale = 1000 / star.z;
+
+    const x = centerX + (star.x - centerX) * scale;
+    const y = centerY + (star.y - centerY) * scale;
+
+    if (
+      x < 0 || x > width ||
+      y < 0 || y > height
+    ) {
+
+      star.x = Math.random() * width;
+      star.y = Math.random() * height;
+      star.z = 1000;
+      return;
+
+    }
+
+    starCtx.beginPath();
+    starCtx.arc(x, y, Math.min(2.8, scale * 0.5), 0, Math.PI * 2);
+    starCtx.fillStyle = "rgba(230,238,255,0.8)";
+    starCtx.fill();
+
+  });
+
+  particles.forEach(particle => {
+
+    particle.x += particle.vx;
+    particle.y += particle.vy;
+
+    particle.vy += 0.09;
+    particle.vx *= 0.995;
+    particle.life--;
+
+    confettiCtx.globalAlpha = Math.min(
+      1,
+      particle.life / 35
+    );
+
+    confettiCtx.fillStyle = particle.color;
+
+    confettiCtx.fillRect(
+      particle.x,
+      particle.y,
+      particle.size,
+      particle.size * 1.7
+    );
+
+  });
+
+  confettiCtx.globalAlpha = 1;
+
+  particles = particles.filter(particle =>
+    particle.life > 0 &&
+    particle.y < height + 20
+  );
+
+  frames++;
+
+  if (frames % 230 === 0) {
+    createBurst();
+  }
+
+  requestAnimationFrame(animate);
+
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+
+if (!reducedMotion) {
+  createBurst();
+  animate();
+}
+
+</script>
+
+</body>
+</html>

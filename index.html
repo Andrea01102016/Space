@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPACE QUIZ | Mission to the Future</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      background: #05091d;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    /* VESMÍRNÉ POZADÍ */
+
+    #stars {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .nebula {
+      position: fixed;
+      inset: -30%;
+      z-index: 0;
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at 25% 35%,
+          rgba(65, 43, 150, 0.4),
+          transparent 42%
+        ),
+        radial-gradient(
+          ellipse at 75% 70%,
+          rgba(15, 90, 160, 0.32),
+          transparent 45%
+        ),
+        radial-gradient(
+          ellipse at 65% 20%,
+          rgba(118, 32, 118, 0.25),
+          transparent 35%
+        );
+
+      animation: nebulaMove 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes nebulaMove {
+      from {
+        transform: translate(-3%, -2%) scale(1);
+      }
+
+      to {
+        transform: translate(3%, 3%) scale(1.12);
+      }
+    }
+
+    .planet {
+      position: fixed;
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+
+      background: radial-gradient(
+        circle at 30% 25%,
+        #91adff,
+        #34529e 40%,
+        #182452 75%,
+        #060b20
+      );
+
+      box-shadow:
+        0 0 55px rgba(73, 112, 255, 0.2),
+        inset -35px -25px 55px rgba(0, 0, 0, 0.6);
+
+      top: 7%;
+      right: -95px;
+
+      animation: planetFloat 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes planetFloat {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(35px);
+      }
+    }
+
+    /* HLAVNÍ OBSAH */
+
+    .main {
+      position: relative;
+      z-index: 1;
+
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 55px 20px;
+      gap: 35px;
+    }
+
+    .heading {
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #9cbbff;
+      font-size: 15px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(48px, 8vw, 105px);
+      font-weight: bold;
+      letter-spacing: 5px;
+
+      background: linear-gradient(
+        90deg,
+        #ffffff,
+        #a7c8ff,
+        #a98aff
+      );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .description {
+      color: #b7c5e8;
+      font-size: 20px;
+      margin-top: 12px;
+    }
+
+    /* TÝMY */
+
+    .teams {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: 100%;
+      max-width: 1050px;
+      gap: 25px;
+    }
+
+    .team {
+      background: rgba(16, 27, 64, 0.76);
+      border: 1px solid rgba(135, 160, 255, 0.25);
+      border-radius: 22px;
+
+      padding: 32px 25px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 17px;
+
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(14px);
+
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .team:hover {
+      transform: translateY(-7px);
+    }
+
+    .team:nth-child(1) {
+      border-color: rgba(75, 155, 255, 0.65);
+    }
+
+    .team:nth-child(2) {
+      border-color: rgba(185, 100, 255, 0.65);
+    }
+
+    .team:nth-child(3) {
+      border-color: rgba(40, 220, 175, 0.65);
+    }
+
+    .team-icon {
+      font-size: 55px;
+    }
+
+    .team-label {
+      font-size: 15px;
+      letter-spacing: 3px;
+      color: #c3d0ed;
+    }
+
+    .team input {
+      width: 100%;
+      padding: 13px;
+
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+
+      font-family: inherit;
+      font-size: 19px;
+      text-align: center;
+      outline: none;
+    }
+
+    .team input:focus {
+      border-color: #90b5ff;
+      box-shadow: 0 0 15px rgba(90, 130, 255, 0.2);
+    }
+
+    .points {
+      font-size: 42px;
+      font-weight: bold;
+    }
+
+    .points-label {
+      font-size: 12px;
+      color: #a6b8de;
+      letter-spacing: 2px;
+    }
+
+    /* TLAČÍTKA */
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.25s;
+    }
+
+    .start {
+      width: min(100%, 380px);
+      padding: 19px 30px;
+
+      border: none;
+      border-radius: 50px;
+
+      background: linear-gradient(
+        110deg,
+        #416af1,
+        #8254e8
+      );
+
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+
+      box-shadow: 0 8px 30px rgba(83, 89, 240, 0.35);
+    }
+
+    .start:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(83, 89, 240, 0.55);
+    }
+
+    .reset {
+      background: none;
+      color: #9baecc;
+      border: none;
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .reset:hover {
+      color: white;
+    }
+
+    /* MOBILNÍ ZOBRAZENÍ */
+
+    @media (max-width: 750px) {
+      .teams {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+
+      .team {
+        padding: 22px;
+      }
+
+      .main {
+        gap: 25px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        letter-spacing: 3px;
+      }
+
+      .description {
+        font-size: 16px;
+      }
+
+      .planet {
+        width: 180px;
+        height: 180px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nebula,
+      .planet {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ANIMOVANÉ POZADÍ -->
+
+  <canvas id="stars"></canvas>
+
+  <div class="nebula"></div>
+  <div class="planet"></div>
+
+  <!-- HLAVNÍ STRÁNKA -->
+
+  <main class="main">
+
+    <div class="heading">
+
+      <div class="subtitle">
+        Welcome to the Universe
+      </div>
+
+      <h1>SPACE QUIZ</h1>
+
+      <p class="description">
+        Mission to the Future
+      </p>
+
+    </div>
+
+    <!-- TÝMY -->
+
+    <section class="teams">
+
+      <div class="team">
+
+        <div class="team-icon">🚀</div>
+        <label class="team-label" for="team1">TEAM 1</label>
+
+        <input
+          id="team1"
+          type="text"
+          placeholder="Enter team name"
+          maxlength="24"
+        >
+
+        <div class="points" id="points1">0</div>
+        <div class="points-label">POINTS</div>
+
+      </div>
+
+      <div class="team">
+
+        <div class="team-icon">🪐</div>
+        <label class="team-label" for="team2">TEAM 2</label>
+
+        <input
+          id="team2"
+          type="text"
+          placeholder="Enter team name"
+          maxlength="24"
+        >
+
+        <div class="points" id="points2">0</div>
+        <div class="points-label">POINTS</div>
+
+      </div>
+
+      <div class="team">
+
+        <div class="team-icon">👽</div>
+        <label class="team-label" for="team3">TEAM 3</label>
+
+        <input
+          id="team3"
+          type="text"
+          placeholder="Enter team name"
+          maxlength="24"
+        >
+
+        <div class="points" id="points3">0</div>
+        <div class="points-label">POINTS</div>
+
+      </div>
+
+    </section>
+
+    <!-- OVLÁDÁNÍ -->
+
+    <div class="buttons">
+
+      <button class="start" onclick="startGame()">
+        START GAME 🚀
+      </button>
+
+      <button class="reset" onclick="resetGame()">
+        ↻ New Game
+      </button>
+
+    </div>
+
+  </main>
+
+  <script>
+
+    /* ANIMOVANÝ PRŮLET VESMÍREM */
+
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+
+    let stars = [];
+    let canvasWidth;
+    let canvasHeight;
+
+    const STAR_COUNT = 300;
+
+    // RYCHLOST POHYBU HVĚZD
+    const SPEED = 1;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    function createStars() {
+
+      stars = [];
+
+      for (let i = 0; i < STAR_COUNT; i++) {
+
+        stars.push({
+          x: Math.random() * canvasWidth,
+          y: Math.random() * canvasHeight,
+          z: Math.random() * 999 + 1
+        });
+
+      }
+
+    }
+
+    function resizeCanvas() {
+
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.round(canvasWidth * dpr);
+      canvas.height = Math.round(canvasHeight * dpr);
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      createStars();
+
+      if (reducedMotion) {
+        drawStars(false);
+      }
+
+    }
+
+    function drawStars(move = true) {
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
+
+      stars.forEach(star => {
+
+        if (move) {
+          star.z -= SPEED;
+        }
+
+        if (star.z <= 1) {
+          star.x = Math.random() * canvasWidth;
+          star.y = Math.random() * canvasHeight;
+          star.z = 1000;
+        }
+
+        const scale = 1000 / star.z;
+
+        const x = centerX + (star.x - centerX) * scale;
+        const y = centerY + (star.y - centerY) * scale;
+
+        if (
+          x < 0 ||
+          x > canvasWidth ||
+          y < 0 ||
+          y > canvasHeight
+        ) {
+          star.x = Math.random() * canvasWidth;
+          star.y = Math.random() * canvasHeight;
+          star.z = 1000;
+          return;
+        }
+
+        const radius = Math.min(
+          3,
+          Math.max(0.2, scale * 0.6)
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+        ctx.fillStyle = "rgba(220, 235, 255, 0.9)";
+
+        ctx.fill();
+
+      });
+
+    }
+
+    function animateStars() {
+
+      drawStars(true);
+
+      requestAnimationFrame(animateStars);
+
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+
+    if (!reducedMotion) {
+      animateStars();
+    }
+
+    /* DATA HRY */
+
+    const STORAGE_KEY = "spaceQuizState";
+
+    function defaultGame() {
+
+      return {
+        teams: [
+          { name: "", score: 0 },
+          { name: "", score: 0 },
+          { name: "", score: 0 }
+        ],
+        completedQuestions: []
+      };
+
+    }
+
+    /* NAČTENÍ ULOŽENÉ HRY */
+
+    function loadGame() {
+
+      try {
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+
+          const game = JSON.parse(saved);
+
+          if (
+            Array.isArray(game.teams) &&
+            game.teams.length === 3
+          ) {
+            return game;
+          }
+
+        }
+
+      } catch (error) {
+        console.warn("Saved game could not be loaded.", error);
+      }
+
+      return defaultGame();
+
+    }
+
+    let game = loadGame();
+
+    /* ZOBRAZENÍ TÝMŮ A BODŮ */
+
+    function renderTeams() {
+
+      game.teams.forEach((team, index) => {
+
+        const number = index + 1;
+
+        document.getElementById(
+          "team" + number
+        ).value = team.name;
+
+        document.getElementById(
+          "points" + number
+        ).textContent = team.score;
+
+      });
+
+    }
+
+    renderTeams();
+
+    /* ULOŽENÍ NÁZVŮ TÝMŮ */
+
+    function saveTeamNames() {
+
+      game.teams.forEach((team, index) => {
+
+        const input = document.getElementById(
+          "team" + (index + 1)
+        );
+
+        team.name = input.value.trim();
+
+      });
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(game)
+      );
+
+    }
+
+    /* SPUŠTĚNÍ HRY */
+
+    function startGame() {
+
+      saveTeamNames();
+
+      const missingName = game.teams.some(
+        team => team.name === ""
+      );
+
+      if (missingName) {
+        alert("Please enter all three team names!");
+        return;
+      }
+
+      window.location.href = "categories.html";
+
+    }
+
+    /* NOVÁ HRA */
+
+    function resetGame() {
+
+      const confirmReset = confirm(
+        "Do you really want to start a new game? All points will be lost."
+      );
+
+      if (!confirmReset) {
+        return;
+      }
+
+      game = defaultGame();
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(game)
+      );
+
+      renderTeams();
+
+    }
+
+  </script>
+
+</body>
+</html>

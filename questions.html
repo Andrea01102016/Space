@@ -1,0 +1,1382 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPACE QUIZ | Questions</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #05091d;
+  color: white;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ANIMOVANÉ POZADÍ */
+
+#stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nebula {
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 25% 35%,
+      rgba(65,43,150,.4), transparent 42%),
+    radial-gradient(ellipse at 75% 70%,
+      rgba(15,90,160,.32), transparent 45%),
+    radial-gradient(ellipse at 65% 20%,
+      rgba(118,32,118,.25), transparent 35%);
+  animation: nebulaMove 25s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaMove {
+  from { transform: translate(-3%,-2%) scale(1); }
+  to { transform: translate(3%,3%) scale(1.12); }
+}
+
+/* ROZVRŽENÍ STRÁNKY */
+
+.main {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+.heading {
+  text-align: center;
+}
+
+.subtitle {
+  color: #9cbbff;
+  font-size: 13px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: clamp(30px, 5vw, 60px);
+  background: linear-gradient(90deg,#fff,#a7c8ff,#a98aff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  color: #b7c5e8;
+  margin-top: 10px;
+}
+
+/* VÝBĚR BODŮ */
+
+.points-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: 18px;
+  width: 100%;
+}
+
+.point-button {
+  min-height: 145px;
+  border: 1px solid #5475ce;
+  border-radius: 18px;
+  background: rgba(24,46,100,.85);
+  color: #ffd66d;
+  font: bold clamp(21px,3vw,38px) 'Trebuchet MS',sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
+  transition: .25s;
+}
+
+.point-button:hover:not(:disabled) {
+  transform: translateY(-7px);
+  background: #304d9e;
+  box-shadow: 0 0 28px rgba(75,120,255,.4);
+}
+
+.point-button.completed {
+  background: #303747;
+  border-color: #535b6f;
+  color: #929cb0;
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* OKNO S OTÁZKOU */
+
+.question-panel {
+  width: 100%;
+  max-width: 940px;
+  padding: 30px;
+  border: 1px solid rgba(135,160,255,.35);
+  border-radius: 24px;
+  background: rgba(14,25,59,.94);
+  box-shadow: 0 15px 50px rgba(0,0,0,.4);
+  backdrop-filter: blur(15px);
+}
+
+.question-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.question-category {
+  color: #bacaff;
+  font-size: 15px;
+}
+
+.question-value {
+  color: #ffd66d;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.question-text {
+  font-size: clamp(21px,3vw,32px);
+  line-height: 1.4;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.option {
+  padding: 17px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 12px;
+  font-size: 17px;
+}
+
+.option.correct {
+  border-color: #62e3a4;
+  background: rgba(35,160,95,.22);
+}
+
+/* OBRÁZKOVÉ OTÁZKY */
+
+.question-image {
+  width: 100%;
+  max-width: 580px;
+  height: 280px;
+  margin: 0 auto 25px;
+  border-radius: 17px;
+  overflow: hidden;
+  background: #19284e;
+  border: 1px solid #4865ad;
+}
+
+.question-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.question-image.crop img {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(2.6);
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  color: #b6c8ed;
+  text-align: center;
+  padding: 20px;
+}
+
+.image-placeholder span {
+  font-size: 48px;
+}
+
+/* ODPOVĚĎ */
+
+.answer {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid rgba(80,215,145,.5);
+  background: rgba(25,130,80,.18);
+  border-radius: 15px;
+  text-align: center;
+}
+
+.answer-title {
+  color: #7aefaf;
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.answer-value {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.answer-fact {
+  font-size: 14px;
+  color: #bed5ca;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* TLAČÍTKA */
+
+.action-button {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  margin: 22px auto 0;
+  padding: 16px;
+  border: 0;
+  border-radius: 30px;
+  background: linear-gradient(110deg,#416af1,#8254e8);
+  color: white;
+  font: bold 16px 'Trebuchet MS',sans-serif;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.action-button:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.action-button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.2);
+}
+
+.back-button {
+  padding: 12px 20px;
+  color: #dce6ff;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* HODNOCENÍ TÝMŮ */
+
+.evaluation {
+  margin-top: 25px;
+  border-top: 1px solid rgba(255,255,255,.2);
+  padding-top: 25px;
+}
+
+.evaluation h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.team-result {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(255,255,255,.05);
+  border-radius: 13px;
+}
+
+.team-name {
+  font-size: 17px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.team-result:nth-child(2) .team-name {
+  color: #69b8ff;
+}
+
+.team-result:nth-child(3) .team-name {
+  color: #d5adff;
+}
+
+.team-result:nth-child(4) .team-name {
+  color: #79ebc8;
+}
+
+.result-button {
+  padding: 12px 18px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  color: white;
+  font: bold 15px inherit;
+  cursor: pointer;
+}
+
+.result-button.right.selected {
+  background: #19784c;
+  border-color: #68e9a3;
+}
+
+.result-button.wrong.selected {
+  background: #9b3348;
+  border-color: #ff8d9c;
+}
+
+/* SPODNÍ SKÓRE */
+
+.scoreboard {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(12,22,55,.9);
+  border: 1px solid rgba(135,160,255,.25);
+  border-radius: 18px;
+}
+
+.score-team {
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.score-name {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.score-points {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.score-team:nth-child(1) .score-name { color: #69b8ff; }
+.score-team:nth-child(2) .score-name { color: #d5adff; }
+.score-team:nth-child(3) .score-name { color: #79ebc8; }
+
+.hidden {
+  display: none !important;
+}
+
+/* RESPONZIVITA */
+
+@media (max-width: 700px) {
+  .main {
+    padding: 25px 12px;
+  }
+
+  .points-grid {
+    gap: 7px;
+  }
+
+  .point-button {
+    min-height: 82px;
+    font-size: 19px;
+  }
+
+  .question-panel {
+    padding: 18px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .question-image {
+    height: 220px;
+  }
+
+  .team-result {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .team-name {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .score-name {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula {
+    animation: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+<div class="nebula"></div>
+
+<main class="main">
+
+  <header class="heading">
+    <div class="subtitle">MISSION TO THE FUTURE</div>
+    <h1 id="categoryTitle">SPACE QUIZ</h1>
+    <p class="description">Choose your question!</p>
+  </header>
+
+  <!-- NABÍDKA OTÁZEK -->
+
+  <section class="points-grid" id="pointsGrid">
+
+    <button class="point-button" data-points="100">100</button>
+    <button class="point-button" data-points="200">200</button>
+    <button class="point-button" data-points="300">300</button>
+    <button class="point-button" data-points="400">400</button>
+    <button class="point-button" data-points="500">500</button>
+
+  </section>
+
+  <!-- ZOBRAZENÍ OTÁZKY -->
+
+  <section class="question-panel hidden" id="questionPanel">
+
+    <div class="question-top">
+      <div class="question-category" id="questionCategory"></div>
+      <div class="question-value" id="questionValue"></div>
+    </div>
+
+    <div class="question-image hidden" id="imageBox"></div>
+
+    <div class="question-text" id="questionText"></div>
+
+    <div class="options hidden" id="optionsBox"></div>
+
+    <button
+      class="action-button"
+      id="showAnswerButton"
+      onclick="showAnswer()">
+      SHOW ANSWER
+    </button>
+
+    <div class="answer hidden" id="answerBox">
+      <div class="answer-title">CORRECT ANSWER</div>
+      <div class="answer-value" id="answerValue"></div>
+      <div class="answer-fact" id="answerFact"></div>
+    </div>
+
+    <!-- HODNOCENÍ -->
+
+    <div class="evaluation hidden" id="evaluation">
+
+      <h2>AWARD POINTS</h2>
+
+      <div id="teamResults"></div>
+
+      <button
+        class="action-button"
+        id="confirmButton"
+        onclick="confirmResults()">
+        CONFIRM POINTS
+      </button>
+
+    </div>
+
+    <button
+      class="action-button secondary-button"
+      onclick="closeQuestion()">
+      BACK TO QUESTIONS
+    </button>
+
+  </section>
+
+  <!-- PRŮBĚŽNÉ SKÓRE -->
+
+  <section class="scoreboard">
+
+    <div class="score-team">
+      <div class="score-name" id="name1">TEAM 1</div>
+      <div class="score-points" id="score1">0</div>
+    </div>
+
+    <div class="score-team">
+      <div class="score-name" id="name2">TEAM 2</div>
+      <div class="score-points" id="score2">0</div>
+    </div>
+
+    <div class="score-team">
+      <div class="score-name" id="name3">TEAM 3</div>
+      <div class="score-points" id="score3">0</div>
+    </div>
+
+  </section>
+
+  <button class="back-button" onclick="goToCategories()">
+    ← BACK TO CATEGORIES
+  </button>
+
+</main>
+
+<script>
+
+/* =====================================
+   OTÁZKY – VŠECH 8 KATEGORIÍ
+===================================== */
+
+const categories = {
+
+  "space-facts": {
+    title: "🪐 SPACE FACTS",
+    questions: {
+      100: {
+        text: "What is the name of the planet we live on?",
+        answer: "Earth"
+      },
+      200: {
+        text: "Which planet is known as the Red Planet?",
+        answer: "Mars"
+      },
+      300: {
+        text: "How many planets are there in our Solar System?",
+        answer: "Eight (8)"
+      },
+      400: {
+        text: "What is the name of the galaxy we live in?",
+        answer: "The Milky Way"
+      },
+      500: {
+        text: "Which planet takes the longest time to orbit the Sun?",
+        answer: "Neptune"
+      }
+    }
+  },
+
+  "famous-astronauts": {
+    title: "👨‍🚀 FAMOUS ASTRONAUTS",
+    questions: {
+      100: {
+        text: "What was the name of the first animal to orbit Earth?",
+        options: ["Belka", "Laika", "Ham", "Strelka"],
+        correct: 1,
+        answer: "Laika"
+      },
+      200: {
+        text: "Who was the first person to walk on the Moon?",
+        answer: "Neil Armstrong"
+      },
+      300: {
+        text: "Who was the first woman in space?",
+        options: [
+          "Sally Ride",
+          "Valentina Tereshkova",
+          "Mae Jemison",
+          "Christina Koch"
+        ],
+        correct: 1,
+        answer: "Valentina Tereshkova"
+      },
+      400: {
+        text: "Who was the first human to travel into space?",
+        answer: "Yuri Gagarin"
+      },
+      500: {
+        text: "Who was the first astronaut from Czechoslovakia?",
+        options: [
+          "Vladimír Remek",
+          "Alexej Leonov",
+          "Miroslav Hermaszewski",
+          "Ivan Bella"
+        ],
+        correct: 0,
+        answer: "Vladimír Remek"
+      }
+    }
+  },
+
+  "aliens-ufos": {
+    title: "👽 ALIENS & UFOs",
+    questions: {
+      100: {
+        text: "What does UFO stand for?",
+        options: [
+          "Unknown Flying Object",
+          "Unidentified Flying Object",
+          "Universal Flying Object",
+          "United Flying Object"
+        ],
+        correct: 1,
+        answer: "Unidentified Flying Object"
+      },
+      200: {
+        text: "What is the name of the famous little alien who wants to phone home?",
+        answer: "E.T."
+      },
+      300: {
+        text: "Which planet did Superman come from?",
+        options: ["Mars", "Vulcan", "Krypton", "Pandora"],
+        correct: 2,
+        answer: "Krypton"
+      },
+      400: {
+        text: "What is the name of the famous secret military base in Nevada connected with UFO stories?",
+        answer: "Area 51"
+      },
+      500: {
+        text: "What is the name of the famous radio signal detected in 1977 that some people connected with aliens?",
+        options: [
+          "The Alpha Signal",
+          "The Wow! Signal",
+          "The Cosmic Signal",
+          "The Mars Signal"
+        ],
+        correct: 1,
+        answer: "The Wow! Signal"
+      }
+    }
+  },
+
+  "space-movies": {
+    title: "🎬 SPACE MOVIES",
+    questions: {
+      100: {
+        text: "What movie is this character from?",
+        image: "images/buzz.jpg",
+        answer: "Toy Story"
+      },
+      200: {
+        text: "What movie series is this character from?",
+        image: "images/yoda.jpg",
+        answer: "Star Wars"
+      },
+      300: {
+        text: "What movie is this from?",
+        image: "images/avatar.jpg",
+        crop: true,
+        answer: "Avatar"
+      },
+      400: {
+        text: "What movie is this from?",
+        image: "images/et.jpg",
+        answer: "E.T. the Extra-Terrestrial"
+      },
+      500: {
+        text: "What movie is this from?",
+        image: "images/men-in-black.jpg",
+        options: [
+          "The Matrix",
+          "Men in Black",
+          "Independence Day",
+          "The X-Files"
+        ],
+        correct: 1,
+        answer: "Men in Black"
+      }
+    }
+  },
+
+  "back-to-future": {
+    title: "🤖 BACK TO THE FUTURE",
+    questions: {
+      100: {
+        text: "Which of these can drive without a human driver?",
+        options: [
+          "Flying car",
+          "Self-driving car",
+          "Time machine",
+          "Spaceship"
+        ],
+        correct: 1,
+        answer: "Self-driving car"
+      },
+      200: {
+        text: "What is AI?",
+        options: [
+          "Automatic Internet",
+          "Artificial Intelligence",
+          "Advanced Information",
+          "Artificial Internet"
+        ],
+        correct: 1,
+        answer: "Artificial Intelligence"
+      },
+      300: {
+        text: "What is VR?",
+        answer: "Virtual Reality"
+      },
+      400: {
+        text: "What is the name of the technology that creates real objects by building them layer by layer?",
+        answer: "3D printing"
+      },
+      500: {
+        text: "Which scientist is famous for his theory of relativity?",
+        options: [
+          "Isaac Newton",
+          "Nikola Tesla",
+          "Albert Einstein",
+          "Stephen Hawking"
+        ],
+        correct: 2,
+        answer: "Albert Einstein"
+      }
+    }
+  },
+
+  "guess-what": {
+    title: "🔭 GUESS WHAT?",
+    questions: {
+      100: {
+        text: "What planet is this?",
+        image: "images/saturn.jpg",
+        answer: "Saturn"
+      },
+      200: {
+        text: "What is this object called in English?",
+        image: "images/iss.jpg",
+        answer: "Space station / International Space Station"
+      },
+      300: {
+        text: "Which planet can you see in this picture?",
+        image: "images/mars.jpg",
+        crop: true,
+        answer: "Mars"
+      },
+      400: {
+        text: "What kind of space instrument is this?",
+        image: "images/telescope.jpg",
+        crop: true,
+        answer: "Telescope / Space telescope"
+      },
+      500: {
+        text: "What space event is happening in this picture?",
+        image: "images/eclipse.jpg",
+        options: [
+          "Solar eclipse",
+          "Meteor shower",
+          "Lunar eclipse",
+          "Supermoon"
+        ],
+        correct: 0,
+        answer: "Solar eclipse"
+      }
+    }
+  },
+
+  "true-false": {
+    title: "🌍 TRUE OR FALSE?",
+    questions: {
+      100: {
+        text: "The Moon is slowly moving away from Earth every year.",
+        answer: "TRUE",
+        fact: "Měsíc se vzdaluje asi o 3,8 cm ročně."
+      },
+      200: {
+        text: "There is no sound in the vacuum of space.",
+        answer: "TRUE",
+        fact: "Zvuk se ve vakuu nešíří."
+      },
+      300: {
+        text: "One day on Venus is longer than one year on Venus.",
+        answer: "TRUE",
+        fact: "Jedna rotace Venuše trvá asi 243 pozemských dní, oběh kolem Slunce asi 225 dní."
+      },
+      400: {
+        text: "The Great Wall of China is clearly visible from the Moon without a telescope.",
+        answer: "FALSE",
+        fact: "Velká čínská zeď není z Měsíce pouhým okem viditelná."
+      },
+      500: {
+        text: "Footprints on the Moon can remain there for millions of years.",
+        answer: "TRUE",
+        fact: "Na Měsíci nejsou vítr ani déšť, které by stopy rychle smazaly."
+      }
+    }
+  },
+
+  "space-records": {
+    title: "🏆 SPACE RECORDS",
+    questions: {
+      100: {
+        text: "Which is the largest planet in our Solar System?",
+        options: ["Earth", "Saturn", "Jupiter", "Neptune"],
+        correct: 2,
+        answer: "Jupiter"
+      },
+      200: {
+        text: "Which planet is the hottest in our Solar System?",
+        answer: "Venus"
+      },
+      300: {
+        text: "Which planet has the shortest day (fastest rotation) in our Solar System?",
+        options: ["Earth", "Mars", "Jupiter", "Mercury"],
+        correct: 2,
+        answer: "Jupiter"
+      },
+      400: {
+        text: "How long does sunlight take to reach Earth?",
+        answer: "About 8 minutes and 20 seconds",
+        fact: "Uznat lze také přibližně 8 minut."
+      },
+      500: {
+        text: "Which planet has the strongest winds in our Solar System?",
+        options: ["Jupiter", "Saturn", "Neptune", "Uranus"],
+        correct: 2,
+        answer: "Neptune"
+      }
+    }
+  }
+
+};
+
+/* =====================================
+   DATA HRY
+===================================== */
+
+const STORAGE_KEY = "spaceQuizState";
+
+const params = new URLSearchParams(window.location.search);
+
+const categoryId = params.get("category") || "space-facts";
+
+const currentCategory = categories[categoryId];
+
+if (!currentCategory) {
+  window.location.href = "categories.html";
+}
+
+function defaultGame() {
+  return {
+    teams: [
+      {name: "Team 1", score: 0},
+      {name: "Team 2", score: 0},
+      {name: "Team 3", score: 0}
+    ],
+    completedQuestions: []
+  };
+}
+
+function loadGame() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+
+      if (
+        Array.isArray(parsed.teams) &&
+        parsed.teams.length === 3
+      ) {
+        if (!Array.isArray(parsed.completedQuestions)) {
+          parsed.completedQuestions = [];
+        }
+
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.warn("Game data could not be loaded.", error);
+  }
+
+  return defaultGame();
+}
+
+let game = loadGame();
+
+function saveGame() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+}
+
+let currentPoints = null;
+let currentQuestion = null;
+let teamAnswers = [null, null, null];
+
+/* =====================================
+   ZOBRAZENÍ SKÓRE
+===================================== */
+
+function renderScores() {
+
+  game.teams.forEach((team, i) => {
+
+    document.getElementById("name" + (i + 1)).textContent =
+      ["🚀 ", "🪐 ", "👽 "][i] + (team.name || "TEAM " + (i + 1));
+
+    document.getElementById("score" + (i + 1)).textContent =
+      team.score;
+
+  });
+
+}
+
+/* =====================================
+   ZOBRAZENÍ DOSTUPNÝCH OTÁZEK
+===================================== */
+
+function renderPoints() {
+
+  document.getElementById("categoryTitle").textContent =
+    currentCategory.title;
+
+  document.querySelectorAll(".point-button").forEach(button => {
+
+    const points = Number(button.dataset.points);
+    const questionId = categoryId + "-" + points;
+
+    const completed =
+      game.completedQuestions.includes(questionId);
+
+    button.disabled = completed;
+    button.classList.toggle("completed", completed);
+
+    button.textContent = completed ? "✓" : points;
+
+  });
+
+}
+
+/* =====================================
+   OTEVŘENÍ OTÁZKY
+===================================== */
+
+function openQuestion(points) {
+
+  const questionId = categoryId + "-" + points;
+
+  if (game.completedQuestions.includes(questionId)) {
+    return;
+  }
+
+  currentPoints = points;
+  currentQuestion = currentCategory.questions[points];
+
+  teamAnswers = [null, null, null];
+
+  document.getElementById("pointsGrid").classList.add("hidden");
+
+  document.getElementById("questionPanel").classList.remove("hidden");
+
+  document.getElementById("questionCategory").textContent =
+    currentCategory.title;
+
+  document.getElementById("questionValue").textContent =
+    points + " POINTS";
+
+  document.getElementById("questionText").textContent =
+    currentQuestion.text;
+
+  document.getElementById("answerBox").classList.add("hidden");
+  document.getElementById("evaluation").classList.add("hidden");
+  document.getElementById("showAnswerButton").classList.remove("hidden");
+
+  renderQuestionImage();
+  renderOptions(false);
+
+  window.scrollTo({top: 0, behavior: "smooth"});
+
+}
+
+/* =====================================
+   OBRÁZEK OTÁZKY
+===================================== */
+
+function renderQuestionImage() {
+
+  const box = document.getElementById("imageBox");
+
+  box.innerHTML = "";
+  box.className = "question-image hidden";
+
+  if (!currentQuestion.image) return;
+
+  box.classList.remove("hidden");
+
+  if (currentQuestion.crop) {
+    box.classList.add("crop");
+  }
+
+  const img = document.createElement("img");
+
+  img.src = currentQuestion.image;
+  img.alt = "Space quiz picture";
+
+  img.onerror = function() {
+
+    box.classList.remove("crop");
+
+    box.innerHTML = "";
+
+    const placeholder = document.createElement("div");
+    placeholder.className = "image-placeholder";
+
+    const icon = document.createElement("span");
+    icon.textContent = "🖼️";
+
+    const message = document.createElement("p");
+    message.textContent = "Add image: " + currentQuestion.image;
+
+    placeholder.append(icon, message);
+    box.appendChild(placeholder);
+
+  };
+
+  box.appendChild(img);
+
+}
+
+/* =====================================
+   MOŽNOSTI A–D
+===================================== */
+
+function renderOptions(showCorrect) {
+
+  const box = document.getElementById("optionsBox");
+
+  box.innerHTML = "";
+
+  if (!currentQuestion.options) {
+    box.classList.add("hidden");
+    return;
+  }
+
+  box.classList.remove("hidden");
+
+  currentQuestion.options.forEach((option, index) => {
+
+    const div = document.createElement("div");
+
+    div.className = "option";
+
+    if (showCorrect && index === currentQuestion.correct) {
+      div.classList.add("correct");
+    }
+
+    div.textContent =
+      String.fromCharCode(65 + index) + ". " + option;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+/* =====================================
+   ODHALENÍ SPRÁVNÉ ODPOVĚDI
+===================================== */
+
+function showAnswer() {
+
+  document.getElementById("showAnswerButton").classList.add("hidden");
+
+  document.getElementById("answerBox").classList.remove("hidden");
+  document.getElementById("evaluation").classList.remove("hidden");
+
+  document.getElementById("answerValue").textContent =
+    currentQuestion.answer;
+
+  const fact = document.getElementById("answerFact");
+
+  fact.textContent = currentQuestion.fact || "";
+
+  fact.style.display = currentQuestion.fact ? "block" : "none";
+
+  renderOptions(true);
+  renderTeamResults();
+
+}
+
+/* =====================================
+   HODNOCENÍ TÝMŮ
+===================================== */
+
+function renderTeamResults() {
+
+  const container = document.getElementById("teamResults");
+
+  container.innerHTML = "";
+
+  game.teams.forEach((team, index) => {
+
+    const row = document.createElement("div");
+    row.className = "team-result";
+
+    const name = document.createElement("div");
+    name.className = "team-name";
+    name.textContent = team.name || "Team " + (index + 1);
+
+    const correctButton = document.createElement("button");
+    correctButton.className = "result-button right";
+    correctButton.textContent = "✓ +" + currentPoints;
+
+    const wrongButton = document.createElement("button");
+    wrongButton.className = "result-button wrong";
+    wrongButton.textContent = "✕ -" + currentPoints;
+
+    correctButton.classList.toggle(
+      "selected",
+      teamAnswers[index] === true
+    );
+
+    wrongButton.classList.toggle(
+      "selected",
+      teamAnswers[index] === false
+    );
+
+    correctButton.onclick = function() {
+      teamAnswers[index] = true;
+      renderTeamResults();
+    };
+
+    wrongButton.onclick = function() {
+      teamAnswers[index] = false;
+      renderTeamResults();
+    };
+
+    row.append(name, correctButton, wrongButton);
+
+    container.appendChild(row);
+
+  });
+
+  document.getElementById("confirmButton").disabled =
+    teamAnswers.some(answer => answer === null);
+
+}
+
+/* =====================================
+   POTVRZENÍ BODŮ
+===================================== */
+
+function confirmResults() {
+
+  if (
+    currentPoints === null ||
+    teamAnswers.some(answer => answer === null)
+  ) {
+    alert("Please evaluate all three teams!");
+    return;
+  }
+
+  const questionId = categoryId + "-" + currentPoints;
+
+  if (game.completedQuestions.includes(questionId)) {
+    return;
+  }
+
+  game.teams.forEach((team, index) => {
+
+    const points = teamAnswers[index]
+      ? currentPoints
+      : -currentPoints;
+
+    team.score = Number(team.score || 0) + points;
+
+  });
+
+  game.completedQuestions.push(questionId);
+
+  saveGame();
+
+  renderScores();
+  renderPoints();
+
+  closeQuestion();
+
+}
+
+/* =====================================
+   ZAVŘENÍ OTÁZKY
+===================================== */
+
+function closeQuestion() {
+
+  currentPoints = null;
+  currentQuestion = null;
+  teamAnswers = [null, null, null];
+
+  document.getElementById("questionPanel").classList.add("hidden");
+  document.getElementById("pointsGrid").classList.remove("hidden");
+
+}
+
+/* =====================================
+   NÁVRAT DO KATEGORIÍ
+===================================== */
+
+function goToCategories() {
+
+  window.location.href = "categories.html";
+
+}
+
+/* =====================================
+   KLIKÁNÍ NA ČÁSTKY
+===================================== */
+
+document.querySelectorAll(".point-button").forEach(button => {
+
+  button.addEventListener("click", function() {
+
+    openQuestion(Number(this.dataset.points));
+
+  });
+
+});
+
+/* =====================================
+   ANIMOVANÉ HVĚZDY
+===================================== */
+
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+let stars = [];
+let canvasWidth;
+let canvasHeight;
+
+const STAR_COUNT = 300;
+const SPEED = 1;
+
+const reducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+
+function createStars() {
+
+  stars = [];
+
+  for (let i = 0; i < STAR_COUNT; i++) {
+
+    stars.push({
+      x: Math.random() * canvasWidth,
+      y: Math.random() * canvasHeight,
+      z: Math.random() * 999 + 1
+    });
+
+  }
+
+}
+
+function resizeCanvas() {
+
+  canvasWidth = window.innerWidth;
+  canvasHeight = window.innerHeight;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width = Math.round(canvasWidth * dpr);
+  canvas.height = Math.round(canvasHeight * dpr);
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  createStars();
+
+  if (reducedMotion) drawStars(false);
+
+}
+
+function drawStars(move = true) {
+
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  const centerX = canvasWidth / 2;
+  const centerY = canvasHeight / 2;
+
+  stars.forEach(star => {
+
+    if (move) star.z -= SPEED;
+
+    if (star.z <= 1) {
+      star.x = Math.random() * canvasWidth;
+      star.y = Math.random() * canvasHeight;
+      star.z = 1000;
+    }
+
+    const scale = 1000 / star.z;
+
+    const x = centerX + (star.x - centerX) * scale;
+    const y = centerY + (star.y - centerY) * scale;
+
+    if (
+      x < 0 || x > canvasWidth ||
+      y < 0 || y > canvasHeight
+    ) {
+      star.x = Math.random() * canvasWidth;
+      star.y = Math.random() * canvasHeight;
+      star.z = 1000;
+      return;
+    }
+
+    const radius = Math.min(3, Math.max(.2, scale * .6));
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+    ctx.fillStyle = "rgba(220,235,255,.9)";
+    ctx.fill();
+
+  });
+
+}
+
+function animateStars() {
+  drawStars(true);
+  requestAnimationFrame(animateStars);
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+
+if (!reducedMotion) animateStars();
+
+/* SPUŠTĚNÍ STRÁNKY */
+
+renderScores();
+renderPoints();
+
+window.addEventListener("pageshow", function() {
+  game = loadGame();
+  renderScores();
+  renderPoints();
+});
+
+</script>
+</body>
+</html>
